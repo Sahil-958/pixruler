@@ -12,7 +12,7 @@ class ScreenCaptureWindow(Gtk.Window):
 
 
     def __init__(self):
-        Gtk.Window.__init__(self, title="PixRule")
+        Gtk.Window.__init__(self, title="PixRuler")
         self.connect('realize', lambda widget: self.get_window().set_cursor(
             Gdk.Cursor.new_for_display(
                 Gdk.Display.get_default(), Gdk.CursorType.BLANK_CURSOR
@@ -33,8 +33,8 @@ class ScreenCaptureWindow(Gtk.Window):
             (1, 0, 1),  # Magenta
             (1, 1, 0)   # Yellow
         ]
-        self.color = self.colors[0]
-        self.cursor_pos = (0, 0)
+        self.cursor_pos = [0, 0]
+        self.text_pos = [0, 0]
         self.line_endpoints = []
         self.stats_pos = [100, 100]
         self.lower_threshold = 50
@@ -45,15 +45,13 @@ class ScreenCaptureWindow(Gtk.Window):
         # Convert to OpenCV format
         self.img = np.array(screen)
         # Convert the image to grayscale & Enhance contrast using histogram equalization
-        self.gray = cv2.equalizeHist(cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY))
+        self.gray = cv2.equalizeHist(cv2.cvtColor(self.img, cv2.COLOR_RGB2GRAY))
         # Detect edges using Canny
         self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
         # Convert OpenCV image to GdkPixbuf
         height, width, channels = self.img.shape
-        bytes_ = self.img.tobytes()
-        self.pixbuf = GdkPixbuf.Pixbuf.new_from_data(bytes_, GdkPixbuf.Colorspace.RGB,
+        self.pixbuf = GdkPixbuf.Pixbuf.new_from_data(self.img.tobytes(), GdkPixbuf.Colorspace.RGB,
                                                 False, 8, width, height, width * channels, None, None)
-
         # Drawing area for displaying the image
         self.drawing_area = Gtk.DrawingArea()
         self.drawing_area.connect("draw", self.on_draw)
@@ -79,6 +77,7 @@ class ScreenCaptureWindow(Gtk.Window):
         cr.set_line_width(self.line_thickness)
         total_len_y=0
         total_len_x=0   
+        line_name = 'INITIALIZE'
         line_clr = self.colors[0]
         text_clr = self.colors[1]
         for i, (start, end) in enumerate(zip([self.cursor_pos] * 4, self.line_endpoints)):
@@ -86,21 +85,21 @@ class ScreenCaptureWindow(Gtk.Window):
             cr.move_to(start[0], start[1])
             cr.line_to(end[0], end[1])
             cr.stroke()
-            length = self.calculate_length(start, end)
-            text_position = self.get_text_position(start, end)
-            text_position[0] += self.offset[0]
-            text_position[1] += self.offset[1]
-            line_name = self.get_line_name(start, end)
-            if line_name == 'y' or line_name == '-y':
+            length = cv2.norm(np.array(end) - np.array(start))
+            self.text_pos[0] = (start[0] + end[0]) // 2 + self.offset[0]
+            self.text_pos[1] = (start[1] + end[1]) // 2 + self.offset[1]
+            if start[0] == end[0]:  # Vertical line
+                line_name = '-y' if start[1] < end[1] else 'y'
                 total_len_y += length
-            elif line_name == 'x' or line_name == '-x':
+            elif start[1] == end[1]:  # Horizontal line
+                line_name = 'x' if start[0] < end[0] else '-x'
                 total_len_x += length
 
             cr.set_source_rgb(*text_clr)
             cr.set_font_size(self.font_size)
 
             if length > self.TEXT_DISPLAY_THRESHOLD + self.font_size :
-                cr.move_to(text_position[0], text_position[1])
+                cr.move_to(self.text_pos[0], self.text_pos[1])
                 cr.show_text(f'{line_name} ({length:.0f}px)')
 
             cr.set_font_size(self.stats_font_size)
@@ -202,28 +201,6 @@ class ScreenCaptureWindow(Gtk.Window):
             if edges[y, x] > 0:
                 return True, (x, y)  # Return True and the position of the edge
         return False, end  # Return False if no edge is detected
-
-
-    def calculate_length(self,start, end):
-        """Calculate the length of the line."""
-        return cv2.norm(np.array(end) - np.array(start))
-
-
-    def get_text_position(self, start, end):
-        """Calculate the position for displaying text."""
-        # Calculate the midpoint of the line
-        mid_x = (start[0] + end[0]) // 2
-        mid_y = (start[1] + end[1]) // 2
-        return [mid_x, mid_y]
-
-
-    def get_line_name(self, start, end):
-        """Determine the name of the line based on its orientation."""
-        if start[0] == end[0]:  # Vertical line
-            return '-y' if start[1] < end[1] else 'y'
-        elif start[1] == end[1]:  # Horizontal line
-            return 'x' if start[0] < end[0] else '-x'
-
 
 if __name__ == "__main__":
     win = ScreenCaptureWindow()
