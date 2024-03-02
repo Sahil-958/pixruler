@@ -2,6 +2,12 @@
 
 PixRuler is a Python application designed to capture the screen, detect edges in the captured image using the Canny edge detection algorithm, and display the detected edges along with some statistical information.
 
+
+
+https://github.com/Sahil-958/pixruler/assets/118348625/e810f5d4-f6d7-442f-a45e-f57615b6a988
+
+
+
 ## Features
 
 - **Edge Detection**: Applies the Canny edge detection algorithm to detect edges in the captured image.
