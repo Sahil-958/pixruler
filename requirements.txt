@@ -1,0 +1,10 @@
+EasyProcess==1.1
+entrypoint2==1.1
+jeepney==0.8.0
+mss==9.0.1
+numpy==1.26.4
+opencv-python==4.9.0.80
+pillow==10.2.0
+pycairo==1.26.0
+PyGObject==3.46.0
+pyscreenshot==3.1
