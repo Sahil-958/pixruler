@@ -1,3 +1,19 @@
+# This file is part of pixruler.
+#
+# Copyright (c) 2024 Sahil
+# pixruler is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# pixruler is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with pixruler.  If not, see <https://www.gnu.org/licenses/>.
+
 import cairo
 import numpy as np
 import cv2
@@ -7,9 +23,7 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('GdkPixbuf', '2.0')
 from gi.repository import Gtk, GdkPixbuf, Gdk
 
-
 class ScreenCaptureWindow(Gtk.Window):
-
 
     def __init__(self):
         Gtk.Window.__init__(self, title="PixRuler")
@@ -67,6 +81,8 @@ class ScreenCaptureWindow(Gtk.Window):
         self.fullscreen()
         self.set_keep_above(True)
         self.connect("destroy", Gtk.main_quit)
+        self.add_events(Gdk.EventMask.KEY_PRESS_MASK)
+        self.connect("key-press-event", self.on_key_press)
         self.show_all()
   
 
@@ -132,13 +148,13 @@ class ScreenCaptureWindow(Gtk.Window):
             self.stats_pos[0] = int(event.x) 
             self.stats_pos[1] = int(event.y)
         if left_click_pressed:
-           self.colors = [self.colors[-1]] + self.colors[:-1]
+            self.colors = [self.colors[-1]] + self.colors[:-1]
         self.queue_draw()
 
 
     def on_scroll(self, widget, event):
         if event.direction == Gdk.ScrollDirection.SMOOTH:
-           return
+            return
         control_pressed = event.state & Gdk.ModifierType.CONTROL_MASK
         alt_pressed = event.state & Gdk.ModifierType.MOD1_MASK
         shift_pressed = event.state & Gdk.ModifierType.SHIFT_MASK
@@ -155,7 +171,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 self.lower_threshold = max(0, self.lower_threshold)  # Ensure value is non-negative
                 self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
                 self.update_lines()
-            else :
+            else:
                 self.line_thickness += 0.2 if is_increase else -0.2
                 self.line_thickness = min(10,max(0.7, self.line_thickness))  # Ensure value is non-negative
         else:
@@ -202,6 +218,17 @@ class ScreenCaptureWindow(Gtk.Window):
                 return True, (x, y)  # Return True and the position of the edge
         return False, end  # Return False if no edge is detected
 
+
+    def on_key_press(self, widget, event):
+        if event.keyval == Gdk.KEY_Return:
+            screen = pyscreenshot.grab()
+            screen.save("screenshot.png")
+        elif event.keyval == Gdk.KEY_Escape:
+            Gtk.main_quit()
+        self.queue_draw()
+        
+
 if __name__ == "__main__":
     win = ScreenCaptureWindow()
     Gtk.main()
+
