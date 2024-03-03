@@ -66,6 +66,37 @@ python pixruler.py
           - Hold `Shift` while scrolling to adjust the vertical text offset.
           - Hold `Alt` while scrolling to adjust the stats font size.
 
+4. Use Vim-like keybindings for parameter adjustments:
+   - Press `H` to move stastical information to the left. 
+   - Press `L` to move stastical information to the right.
+   - Press `J` to move stastical information down.
+   - Press `K` to move stastical information up.
+   - Press `c` to cycle through different line colors.
+   - Press `h` to move pointer to the left.
+   - Press `l` to move pointer to the right.
+   - Press `j` to move pointer down.
+   - Press `k` to move pointer up.
+   - Press `o` to offset the text horizontally right.
+   - Press `O` to offset the text horizontally left.
+   - Press `p` to offset the text vertically down.
+   - Press `P` to offset the text vertically up.
+   - Press `R` to decrease the lower threshold value.
+   - Press `r` to increase the lower threshold value.
+   - Press `U` to decrease the upper threshold value.
+   - Press `u` to increase the upper threshold value.
+   - Press `T` to decrease the line thickness.
+   - Press `t` to increase the line thickness.
+   - Press `F` to decrease the font size.
+   - Press `f` to increase the font size.
+   - Press `S` to decrease the stats font size.
+   - Press `s` to increase the stats font size.
+   - Press `q` to quit the application.
+
+Use above key with `Ctrl` and `Alt` to increase the step size for certain adjustments.
+
+When `Ctrl` is hold the step size is default(4)*16 and when `Alt` is hold the step size is default(1)*8. When both `Ctrl` and `Alt` are hold the step size is default(4)*24.
+
+IF you feel that the keybinds letter's doesn't reflect the action it does, feel free to open an issue to suggest better keybinds.
 
 ## Customization
 
@@ -83,9 +114,9 @@ You can customize the application by modifying the following parameters in the `
 ## Future Roadmap
 
 - [ ] Add support for providing image files as input.
-- [ ] Add support for saving the detected edges as an image file.
-- [ ] Add vim-like keybindings for parameter adjustments.
-- [ ] Add keyboard only usage by removing the need for mouse interaction.
+- [x] Add support for saving the detected edges as an image file.
+- [x] Add vim-like keybindings for parameter adjustments.
+- [x] Add keyboard only usage by removing the need for mouse interaction.
 - [ ] Add intuitive GUI for parameter adjustments.
 - [ ] Add support for customizing the color palette for detected edges.
 - [ ] Add snap-to-shape feature for detected edges of geometric shapes.
