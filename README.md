@@ -113,7 +113,7 @@ You can customize the application by modifying the following parameters in the `
 
 ## Future Roadmap
 
-- [ ] Add support for providing image files as input.
+- [x] Add support for providing image files as input.
 - [x] Add support for saving the detected edges as an image file.
 - [x] Add vim-like keybindings for parameter adjustments.
 - [x] Add keyboard only usage by removing the need for mouse interaction.
