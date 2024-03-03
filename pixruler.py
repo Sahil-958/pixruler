@@ -66,6 +66,8 @@ class ScreenCaptureWindow(Gtk.Window):
         height, width, channels = self.img.shape
         self.pixbuf = GdkPixbuf.Pixbuf.new_from_data(self.img.tobytes(), GdkPixbuf.Colorspace.RGB,
                                                 False, 8, width, height, width * channels, None, None)
+        # Center the starting cursor position
+        self.cursor_pos = [width // 2, height // 2]
         # Drawing area for displaying the image
         self.drawing_area = Gtk.DrawingArea()
         self.drawing_area.connect("draw", self.on_draw)
@@ -77,13 +79,14 @@ class ScreenCaptureWindow(Gtk.Window):
         self.add_events(Gdk.EventMask.SCROLL_MASK)
         self.connect("button-press-event", self.on_button_press)
         self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+        self.connect("key-press-event", self.on_key_press)
+        self.add_events(Gdk.EventMask.KEY_PRESS_MASK)
         # Set window properties
         self.fullscreen()
         self.set_keep_above(True)
         self.connect("destroy", Gtk.main_quit)
-        self.add_events(Gdk.EventMask.KEY_PRESS_MASK)
-        self.connect("key-press-event", self.on_key_press)
         self.show_all()
+        self.update_lines()
   
 
     def on_draw(self, widget, cr):
@@ -136,7 +139,7 @@ class ScreenCaptureWindow(Gtk.Window):
 
     
     def on_motion_notify(self, widget, event):
-        self.cursor_pos = (int(event.x), int(event.y))
+        self.cursor_pos = [int(event.x), int(event.y)]
         self.update_lines()
         self.queue_draw()
 
@@ -162,30 +165,119 @@ class ScreenCaptureWindow(Gtk.Window):
         is_increase = event.direction == Gdk.ScrollDirection.UP
         if caps_lock_pressed:
             if alt_pressed:
-                self.font_size += self.STEP_SIZE_ONE if is_increase else -self.STEP_SIZE_ONE
-                self.font_size = max(0, self.font_size)  # Ensure value is non-negative
+                self.font_size = self.adjust_value(self.font_size, self.STEP_SIZE_ONE, is_increase, 0)
             elif shift_pressed:
-                self.offset[0] += self.STEP_SIZE_FOUR if is_increase else -self.STEP_SIZE_FOUR
+                self.offset[0] = self.adjust_value(self.offset[0], self.STEP_SIZE_FOUR, is_increase)
             elif control_pressed:
-                self.lower_threshold += self.STEP_SIZE_ONE if is_increase else -self.STEP_SIZE_ONE
-                self.lower_threshold = max(0, self.lower_threshold)  # Ensure value is non-negative
+                self.lower_threshold = self.adjust_value(self.lower_threshold,
+                                                         self.STEP_SIZE_ONE,
+                                                         is_increase, 0, self.upper_threshold - 1)
                 self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
                 self.update_lines()
             else:
-                self.line_thickness += 0.2 if is_increase else -0.2
-                self.line_thickness = min(10,max(0.7, self.line_thickness))  # Ensure value is non-negative
+                self.line_thickness = self.adjust_value(self.line_thickness, 0.2, is_increase, 0.7)
         else:
             if alt_pressed:
-                self.stats_font_size += self.STEP_SIZE_ONE if is_increase else -self.STEP_SIZE_ONE
+                self.stats_font_size = self.adjust_value(self.stats_font_size, 1, is_increase, 0)
             elif shift_pressed:
-                self.offset[1] += self.STEP_SIZE_FOUR if is_increase else -self.STEP_SIZE_FOUR
+                self.offset[1] = self.adjust_value(self.offset[1], self.STEP_SIZE_FOUR, is_increase)
             elif control_pressed:
-                self.upper_threshold += self.STEP_SIZE_ONE if is_increase else -self.STEP_SIZE_ONE
-                self.upper_threshold = max(0, self.upper_threshold)  # Ensure value is non-negative
+                self.upper_threshold = self.adjust_value(self.upper_threshold,
+                                                         self.STEP_SIZE_ONE,
+                                                         is_increase, self.lower_threshold + 1)
                 self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
                 self.update_lines()
         self.queue_draw()
 
+    def on_key_press(self, widget, event):
+        control_pressed = event.state & Gdk.ModifierType.CONTROL_MASK
+        alt_pressed = event.state & Gdk.ModifierType.MOD1_MASK
+        step_size = self.STEP_SIZE_FOUR
+        if alt_pressed and control_pressed:
+            step_size *= 24 
+        elif control_pressed:
+            step_size *= 16
+        elif alt_pressed:
+            step_size *= 8
+        
+        if event.keyval == Gdk.KEY_Return:
+            screen = pyscreenshot.grab()
+            screen.save("screenshot.png")
+        elif event.keyval == Gdk.KEY_h:
+            self.cursor_pos[0] = self.adjust_value(self.cursor_pos[0], step_size, False, 0)
+            self.update_lines()
+        elif event.keyval == Gdk. KEY_k:
+            self.cursor_pos[1] = self.adjust_value(self.cursor_pos[1], step_size, False, 0)
+            self.update_lines()
+        elif event.keyval == Gdk.KEY_j:
+            self.cursor_pos[1] = self.adjust_value(self.cursor_pos[1], step_size, True, 0, self.img.shape[0] - 1)
+            self.update_lines()
+        elif event.keyval == Gdk.KEY_l:
+            self.cursor_pos[0] = self.adjust_value(self.cursor_pos[0], step_size, True, 0, self.img.shape[1] - 1)
+            self.update_lines()
+        elif event.keyval == Gdk.KEY_H:
+            self.stats_pos[0] = self.adjust_value(self.stats_pos[0], step_size, False, 0)
+        elif event.keyval == Gdk.KEY_K:
+            self.stats_pos[1] = self.adjust_value(self.stats_pos[1], step_size, False, 0)
+        elif event.keyval == Gdk.KEY_J:
+            self.stats_pos[1] = self.adjust_value(self.stats_pos[1], step_size, True, 0)
+        elif event.keyval == Gdk.KEY_L:
+            self.stats_pos[0] = self.adjust_value(self.stats_pos[0], step_size, True, 0)
+        elif event.keyval == Gdk.KEY_t:
+            self.line_thickness = self.adjust_value(self.line_thickness, 0.2, True, 0.7)
+        elif event.keyval == Gdk.KEY_T:
+            self.line_thickness = self.adjust_value(self.line_thickness, 0.2, False, 0.7)
+        elif event.keyval == Gdk.KEY_f:
+            self.font_size = self.adjust_value(self.font_size, step_size, True, 0)
+        elif event.keyval == Gdk.KEY_F:
+            self.font_size = self.adjust_value(self.font_size, step_size, False, 0)
+        elif event.keyval == Gdk.KEY_s:
+            self.stats_font_size = self.adjust_value(self.stats_font_size, 1, True, 0)
+        elif event.keyval == Gdk.KEY_S:
+            self.stats_font_size = self.adjust_value(self.stats_font_size, 1, False, 0)
+        elif event.keyval == Gdk.KEY_o:
+            self.offset[0] = self.adjust_value(self.offset[0], step_size, True)
+        elif event.keyval == Gdk.KEY_O:
+            self.offset[0] = self.adjust_value(self.offset[0], step_size, False)
+        elif event.keyval == Gdk.KEY_p:
+            self.offset[1] = self.adjust_value(self.offset[1], step_size, True)
+        elif event.keyval == Gdk.KEY_P:
+            self.offset[1] = self.adjust_value(self.offset[1], step_size, False)
+        elif event.keyval == Gdk.KEY_c:
+            self.colors = [self.colors[-1]] + self.colors[:-1]
+        elif event.keyval == Gdk.KEY_r:
+            self.lower_threshold = self.adjust_value(self.lower_threshold,
+                                                     step_size, True, 0, self.upper_threshold - 1)
+            self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
+            self.update_lines()
+        elif event.keyval == Gdk.KEY_R:
+            self.lower_threshold = self.adjust_value(self.lower_threshold,
+                                                     step_size, False, 0, self.upper_threshold - 1)
+            self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
+            self.update_lines()
+        elif event.keyval == Gdk.KEY_u:
+            self.upper_threshold = self.adjust_value(self.upper_threshold, step_size, True)
+            self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
+            self.update_lines()
+        elif event.keyval == Gdk.KEY_U:
+            self.upper_threshold = self.adjust_value(self.upper_threshold,
+                                                     step_size, False, self.lower_threshold + 1)
+            self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
+            self.update_lines()
+        elif event.keyval == Gdk.KEY_q:
+            Gtk.main_quit()
+        self.queue_draw()
+
+    def adjust_value(self, value, step, increase=True, min_value=None, max_value=None):
+        if increase:
+            value += step
+        else:
+            value -= step
+        if min_value is not None:
+            value = max(min_value, value)
+        if max_value is not None:
+            value = min(max_value, value)
+        return value
 
     def update_lines(self):
        # Update line endpoints based on cursor position and detected border
@@ -207,7 +299,6 @@ class ScreenCaptureWindow(Gtk.Window):
         # Calculate the distance between start and end points
         distance = cv2.norm(np.array(end) - np.array(start))
 
-
         # Generate points along the line
         points = np.linspace(start, end, int(distance))
 
@@ -218,15 +309,6 @@ class ScreenCaptureWindow(Gtk.Window):
                 return True, (x, y)  # Return True and the position of the edge
         return False, end  # Return False if no edge is detected
 
-
-    def on_key_press(self, widget, event):
-        if event.keyval == Gdk.KEY_Return:
-            screen = pyscreenshot.grab()
-            screen.save("screenshot.png")
-        elif event.keyval == Gdk.KEY_Escape:
-            Gtk.main_quit()
-        self.queue_draw()
-        
 
 if __name__ == "__main__":
     win = ScreenCaptureWindow()
