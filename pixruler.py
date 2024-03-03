@@ -15,6 +15,7 @@
 # along with pixruler.  If not, see <https://www.gnu.org/licenses/>.
 
 import cairo
+import sys
 import numpy as np
 import cv2
 import pyscreenshot
@@ -55,9 +56,17 @@ class ScreenCaptureWindow(Gtk.Window):
         self.upper_threshold = 70       
 
         # Capture the screen
-        screen = pyscreenshot.grab()
-        # Convert to OpenCV format
-        self.img = np.array(screen)
+        if len(sys.argv) > 1:
+           self.img = cv2.imread(sys.argv[1])
+           geometry=Gdk.Monitor.get_geometry(Gdk.Display.get_default().get_monitor(0))
+           screen_width = geometry.width
+           screen_height = geometry.height 
+           self.img = cv2.resize(self.img, (screen_width, screen_height))
+           self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+        else:
+            self.img = pyscreenshot.grab()
+            # Convert to OpenCV format
+            self.img = np.array(self.img)
         # Convert the image to grayscale & Enhance contrast using histogram equalization
         self.gray = cv2.equalizeHist(cv2.cvtColor(self.img, cv2.COLOR_RGB2GRAY))
         # Detect edges using Canny
