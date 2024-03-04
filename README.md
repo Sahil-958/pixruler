@@ -134,6 +134,7 @@ You can customize the application by modifying the following parameters in the `
 - [ ] Add intuitive GUI for parameter adjustments.
 - [ ] Add support for customizing the color palette for detected edges.
 - [ ] Add snap-to-shape feature for detected edges of geometric shapes.
+- [ ] Add support for switching between multiple images passed as input.
 - [ ] Refactor the code to improve performance, efficiency, and readability.
 
 ## License
