@@ -66,33 +66,47 @@ python pixruler.py
           - Hold `Shift` while scrolling to adjust the vertical text offset.
           - Hold `Alt` while scrolling to adjust the stats font size.
 
-4. Use Vim-like keybindings for parameter adjustments:
-   - Press `H` to move stastical information to the left. 
-   - Press `L` to move stastical information to the right.
-   - Press `J` to move stastical information down.
-   - Press `K` to move stastical information up.
-   - Press `c` to cycle through different line colors.
-   - Press `h` to move pointer to the left.
-   - Press `l` to move pointer to the right.
-   - Press `j` to move pointer down.
-   - Press `k` to move pointer up.
-   - Press `o` to offset the text horizontally right.
-   - Press `O` to offset the text horizontally left.
-   - Press `p` to offset the text vertically down.
-   - Press `P` to offset the text vertically up.
-   - Press `R` to decrease the lower threshold value.
-   - Press `r` to increase the lower threshold value.
-   - Press `U` to decrease the upper threshold value.
-   - Press `u` to increase the upper threshold value.
-   - Press `T` to decrease the line thickness.
-   - Press `t` to increase the line thickness.
-   - Press `F` to decrease the font size.
-   - Press `f` to increase the font size.
-   - Press `S` to decrease the stats font size.
-   - Press `s` to increase the stats font size.
-   - Press `q` to quit the application.
 
-Use above key with `Ctrl` and `Alt` to increase the step size for certain adjustments.
+4. Vim-like Keybindings for Parameter Adjustments:
+
+    - **Stats Movement:**
+      - `H`: Move statistical information left.
+      - `L`: Move statistical information right.
+      - `J`: Move statistical information down.
+      - `K`: Move statistical information up.
+
+    - **Pointer Movement:**
+      - `h`: Move pointer left.
+      - `l`: Move pointer right.
+      - `j`: Move pointer down.
+      - `k`: Move pointer up.
+
+    - **Text Offset:**
+      - `o`: Offset text horizontally right.
+      - `O`: Offset text horizontally left.
+      - `p`: Offset text vertically down.
+      - `P`: Offset text vertically up.
+
+    - **Threshold Adjustment:**
+      - `R`: Decrease lower threshold value.
+      - `r`: Increase lower threshold value.
+      - `U`: Decrease upper threshold value.
+      - `u`: Increase upper threshold value.
+
+    - **Line and Font Settings:**
+      - `T`: Decrease line thickness.
+      - `t`: Increase line thickness.
+      - `F`: Decrease font size.
+      - `f`: Increase font size.
+      - `S`: Decrease stats font size.
+      - `s`: Increase stats font size.
+
+    - **Other Commands:**
+      - `c`: Cycle through different line and text colors.
+      - `q`: Quit the application.
+      - `RETURN`: Takes screenshot and saves it in current directory with name `screenshot.png`.
+
+Use above keybinds with `Ctrl` and `Alt` to increase the step size for certain adjustments.
 
 When `Ctrl` is hold the step size is default(4)*16 and when `Alt` is hold the step size is default(1)*8. When both `Ctrl` and `Alt` are hold the step size is default(4)*24.
 
