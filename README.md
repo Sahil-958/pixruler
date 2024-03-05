@@ -105,6 +105,8 @@ python pixruler.py
       - `c`: Cycle through different line and text colors.
       - `q`: Quit the application.
       - `RETURN`: Takes screenshot and saves it in current directory with name `screenshot.png`.
+      - `n`: Switch to next image from the list of images passed as input.
+      - `N`: Switch to previous image from the list of images passed as input.
 
 Use above keybinds with `Ctrl` and `Alt` to increase the step size for certain adjustments.
 
@@ -134,7 +136,7 @@ You can customize the application by modifying the following parameters in the `
 - [ ] Add intuitive GUI for parameter adjustments.
 - [ ] Add support for customizing the color palette for detected edges.
 - [ ] Add snap-to-shape feature for detected edges of geometric shapes.
-- [ ] Add support for switching between multiple images passed as input.
+- [x] Add support for switching between multiple images passed as input.
 - [ ] Refactor the code to improve performance, efficiency, and readability.
 
 ## License
