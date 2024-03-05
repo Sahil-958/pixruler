@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pixruler.  If not, see <https://www.gnu.org/licenses/>.
 
+from os import pread
 import cairo
 import sys
 import numpy as np
@@ -57,24 +58,16 @@ class ScreenCaptureWindow(Gtk.Window):
 
         # Capture the screen
         if len(sys.argv) > 1:
-           self.img = cv2.imread(sys.argv[1])
-           geometry=Gdk.Monitor.get_geometry(Gdk.Display.get_default().get_monitor(0))
-           screen_width = geometry.width
-           screen_height = geometry.height 
-           self.img = cv2.resize(self.img, (screen_width, screen_height))
-           self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+           self.current_arg_index = 1
+           self.prepare_image(sys.argv[self.current_arg_index]) 
         else:
             self.img = pyscreenshot.grab()
             # Convert to OpenCV format
             self.img = np.array(self.img)
-        # Convert the image to grayscale & Enhance contrast using histogram equalization
-        self.gray = cv2.equalizeHist(cv2.cvtColor(self.img, cv2.COLOR_RGB2GRAY))
-        # Detect edges using Canny
-        self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
-        # Convert OpenCV image to GdkPixbuf
+
+        self.update_edges_and_pixbuf()
+
         height, width, channels = self.img.shape
-        self.pixbuf = GdkPixbuf.Pixbuf.new_from_data(self.img.tobytes(), GdkPixbuf.Colorspace.RGB,
-                                                False, 8, width, height, width * channels, None, None)
         # Center the starting cursor position
         self.cursor_pos = [width // 2, height // 2]
         # Drawing area for displaying the image
@@ -198,6 +191,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 self.update_lines()
         self.queue_draw()
 
+
     def on_key_press(self, widget, event):
         control_pressed = event.state & Gdk.ModifierType.CONTROL_MASK
         alt_pressed = event.state & Gdk.ModifierType.MOD1_MASK
@@ -273,9 +267,45 @@ class ScreenCaptureWindow(Gtk.Window):
                                                      step_size, False, self.lower_threshold + 1)
             self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
             self.update_lines()
+        elif event.keyval == Gdk.KEY_n:
+            if len(sys.argv) > 1:
+               self.current_arg_index += 1
+               if self.current_arg_index >= len(sys.argv):
+                    self.current_arg_index = 1
+               self.prepare_image(sys.argv[self.current_arg_index])
+            self.update_edges_and_pixbuf()
+        elif event.keyval == Gdk.KEY_N:
+            if len(sys.argv) > 1:
+               self.current_arg_index -= 1
+               if self.current_arg_index < 1:
+                    self.current_arg_index = len(sys.argv) - 1
+               self.prepare_image(sys.argv[self.current_arg_index])
+               self.update_edges_and_pixbuf()
         elif event.keyval == Gdk.KEY_q:
             Gtk.main_quit()
         self.queue_draw()
+
+
+    def update_edges_and_pixbuf(self):
+            # Convert the image to grayscale & Enhance contrast using histogram equalization
+            self.gray = cv2.equalizeHist(cv2.cvtColor(self.img, cv2.COLOR_RGB2GRAY))
+            # Detect edges using Canny
+            self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
+            # Convert OpenCV image to GdkPixbuf
+            height, width, channels = self.img.shape
+            self.pixbuf = GdkPixbuf.Pixbuf.new_from_data(self.img.tobytes(), GdkPixbuf.Colorspace.RGB,
+                                                    False, 8, width, height, width * channels, None, None)
+            self.update_lines()  
+
+
+    def prepare_image(self, img):  
+       geometry=Gdk.Monitor.get_geometry(Gdk.Display.get_default().get_monitor(0))
+       self.screen_width = geometry.width
+       self.screen_height = geometry.height 
+       self.img = cv2.imread(img)   
+       self.img = cv2.resize(self.img, (self.screen_width, self.screen_height))
+       self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+
 
     def adjust_value(self, value, step, increase=True, min_value=None, max_value=None):
         if increase:
@@ -287,6 +317,7 @@ class ScreenCaptureWindow(Gtk.Window):
         if max_value is not None:
             value = min(max_value, value)
         return value
+
 
     def update_lines(self):
        # Update line endpoints based on cursor position and detected border
