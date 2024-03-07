@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with pixruler.  If not, see <https://www.gnu.org/licenses/>.
 
-from os import pread
 import cairo
 import sys
 import numpy as np
