@@ -103,6 +103,8 @@ python pixruler.py
 
     - **Other Commands:**
       - `c`: Cycle through different line and text colors.
+      - `C`: Toggle Live Color Mode (lines and stats are colored inverted to the
+        color below them).
       - `q`: Quit the application.
       - `RETURN`: Takes screenshot and saves it in current directory with name `screenshot.png`.
       - `n`: Switch to next image from the list of images passed as input.
@@ -138,6 +140,8 @@ You can customize the application by modifying the following parameters in the `
 - [ ] Add snap-to-shape feature for detected edges of geometric shapes.
 - [x] Add support for switching between multiple images passed as input.
 - [ ] Refactor the code to improve performance, efficiency, and readability.
+- [ ] Refactor code ASAP before it goes out of hand.
+- [ ] Add github workflows for releases
 
 ## License
 
