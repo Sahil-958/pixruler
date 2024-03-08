@@ -48,6 +48,10 @@ class ScreenCaptureWindow(Gtk.Window):
             (1, 0, 1),  # Magenta
             (1, 1, 0)   # Yellow
         ]
+        self.line_text_color = self.colors[1]
+        self.stats_text_color = self.colors[1]
+        self.line_color = self.colors[0]
+        self.is_live_colors = False
         self.cursor_pos = [0, 0]
         self.text_pos = [0, 0]
         self.line_endpoints = []
@@ -57,6 +61,7 @@ class ScreenCaptureWindow(Gtk.Window):
 
         # Capture the screen
         if len(sys.argv) > 1:
+           self.arg_count = len(sys.argv)
            self.current_arg_index = 1
            self.prepare_image(sys.argv[self.current_arg_index]) 
         else:
@@ -98,10 +103,8 @@ class ScreenCaptureWindow(Gtk.Window):
         total_len_y=0
         total_len_x=0   
         line_name = 'INITIALIZE'
-        line_clr = self.colors[0]
-        text_clr = self.colors[1]
         for i, (start, end) in enumerate(zip([self.cursor_pos] * 4, self.line_endpoints)):
-            cr.set_source_rgb(*line_clr)
+            cr.set_source_rgb(*self.line_color)
             cr.move_to(start[0], start[1])
             cr.line_to(end[0], end[1])
             cr.stroke()
@@ -114,18 +117,20 @@ class ScreenCaptureWindow(Gtk.Window):
             elif start[1] == end[1]:  # Horizontal line
                 line_name = 'x' if start[0] < end[0] else '-x'
                 total_len_x += length
-
-            cr.set_source_rgb(*text_clr)
+               
+            cr.set_source_rgb(*self.line_text_color)
             cr.set_font_size(self.font_size)
 
             if length > self.TEXT_DISPLAY_THRESHOLD + self.font_size :
                 cr.move_to(self.text_pos[0], self.text_pos[1])
                 cr.show_text(f'{line_name} ({length:.0f}px)')
 
+            cr.set_source_rgb(*self.stats_text_color)     
             cr.set_font_size(self.stats_font_size)
             cr.move_to(self.stats_pos[0], self.stats_pos[1] + self.stats_font_size * i * 2)
             cr.show_text(f'{line_name} ({length:.0f}px)')
 
+        cr.set_source_rgb(*self.stats_text_color)
         cr.set_font_size(self.stats_font_size)
         cr.move_to(self.stats_pos[0], self.stats_pos[1] + self.stats_font_size * 8)
         cr.show_text(f'Cursor Position: {self.cursor_pos}')
@@ -141,6 +146,7 @@ class ScreenCaptureWindow(Gtk.Window):
     
     def on_motion_notify(self, widget, event):
         self.cursor_pos = [int(event.x), int(event.y)]
+        self.live_colors()
         self.update_lines()
         self.queue_draw()
 
@@ -151,8 +157,13 @@ class ScreenCaptureWindow(Gtk.Window):
         if right_click_pressed:   
             self.stats_pos[0] = int(event.x) 
             self.stats_pos[1] = int(event.y)
+            self.live_colors()
+
         if left_click_pressed:
             self.colors = [self.colors[-1]] + self.colors[:-1]
+            self.line_text_color = self.colors[1]
+            self.stats_text_color = self.colors[1]
+            self.line_color = self.colors[0]
         self.queue_draw()
 
 
@@ -207,24 +218,32 @@ class ScreenCaptureWindow(Gtk.Window):
             screen.save("screenshot.png")
         elif event.keyval == Gdk.KEY_h:
             self.cursor_pos[0] = self.adjust_value(self.cursor_pos[0], step_size, False, 0)
+            self.live_colors()
             self.update_lines()
         elif event.keyval == Gdk. KEY_k:
             self.cursor_pos[1] = self.adjust_value(self.cursor_pos[1], step_size, False, 0)
+            self.live_colors()
             self.update_lines()
         elif event.keyval == Gdk.KEY_j:
             self.cursor_pos[1] = self.adjust_value(self.cursor_pos[1], step_size, True, 0, self.img.shape[0] - 1)
+            self.live_colors()
             self.update_lines()
         elif event.keyval == Gdk.KEY_l:
             self.cursor_pos[0] = self.adjust_value(self.cursor_pos[0], step_size, True, 0, self.img.shape[1] - 1)
+            self.live_colors()
             self.update_lines()
         elif event.keyval == Gdk.KEY_H:
             self.stats_pos[0] = self.adjust_value(self.stats_pos[0], step_size, False, 0)
+            self.live_colors()
         elif event.keyval == Gdk.KEY_K:
             self.stats_pos[1] = self.adjust_value(self.stats_pos[1], step_size, False, 0)
+            self.live_colors()
         elif event.keyval == Gdk.KEY_J:
             self.stats_pos[1] = self.adjust_value(self.stats_pos[1], step_size, True, 0)
+            self.live_colors()
         elif event.keyval == Gdk.KEY_L:
             self.stats_pos[0] = self.adjust_value(self.stats_pos[0], step_size, True, 0)
+            self.live_colors()
         elif event.keyval == Gdk.KEY_t:
             self.line_thickness = self.adjust_value(self.line_thickness, 0.2, True, 0.7)
         elif event.keyval == Gdk.KEY_T:
@@ -247,6 +266,11 @@ class ScreenCaptureWindow(Gtk.Window):
             self.offset[1] = self.adjust_value(self.offset[1], step_size, False)
         elif event.keyval == Gdk.KEY_c:
             self.colors = [self.colors[-1]] + self.colors[:-1]
+            self.line_text_color = self.colors[1]
+            self.stats_text_color = self.colors[1]
+            self.line_color = self.colors[0]
+        elif event.keyval == Gdk.KEY_C:
+            self.is_live_colors = not self.is_live_colors
         elif event.keyval == Gdk.KEY_r:
             self.lower_threshold = self.adjust_value(self.lower_threshold,
                                                      step_size, True, 0, self.upper_threshold - 1)
@@ -267,22 +291,28 @@ class ScreenCaptureWindow(Gtk.Window):
             self.edges = cv2.Canny(self.gray, self.lower_threshold, self.upper_threshold)
             self.update_lines()
         elif event.keyval == Gdk.KEY_n:
-            if len(sys.argv) > 1:
-               self.current_arg_index += 1
-               if self.current_arg_index >= len(sys.argv):
-                    self.current_arg_index = 1
-               self.prepare_image(sys.argv[self.current_arg_index])
-            self.update_edges_and_pixbuf()
+           self.current_arg_index = self.adjust_value(self.current_arg_index, 1, True, None, self.arg_count - 2)
+           self.prepare_image(sys.argv[self.current_arg_index])
+           self.update_edges_and_pixbuf()
         elif event.keyval == Gdk.KEY_N:
-            if len(sys.argv) > 1:
-               self.current_arg_index -= 1
-               if self.current_arg_index < 1:
-                    self.current_arg_index = len(sys.argv) - 1
+               self.current_arg_index = self.adjust_value(self.current_arg_index, 1, False, 1)
                self.prepare_image(sys.argv[self.current_arg_index])
                self.update_edges_and_pixbuf()
         elif event.keyval == Gdk.KEY_q:
             Gtk.main_quit()
         self.queue_draw()
+
+
+    def live_colors(self):  
+        if not self.is_live_colors:
+            return
+        x, y = self.cursor_pos
+        r, g, b =  1 - self.img[y][x] / 255
+        self.line_color = (r, g, b)
+        self.line_text_color = (r, g, b)
+        x, y = self.stats_pos
+        r, g, b =  1 - self.img[y][x] / 255
+        self.stats_text_color = (r, g, b)
 
 
     def update_edges_and_pixbuf(self):
