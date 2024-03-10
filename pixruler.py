@@ -40,18 +40,20 @@ class ScreenCaptureWindow(Gtk.Window):
         )
 
         self.key_actions = {
-            Gdk.KEY_1: lambda self: setattr(self, "step_size_mp", 1),
-            Gdk.KEY_2: lambda self: setattr(self, "step_size_mp", 2),
-            Gdk.KEY_3: lambda self: setattr(self, "step_size_mp", 3),
-            Gdk.KEY_4: lambda self: setattr(self, "step_size_mp", 4),
-            Gdk.KEY_5: lambda self: setattr(self, "step_size_mp", 5),
-            Gdk.KEY_6: lambda self: setattr(self, "step_size_mp", 6),
-            Gdk.KEY_7: lambda self: setattr(self, "step_size_mp", 7),
-            Gdk.KEY_8: lambda self: setattr(self, "step_size_mp", 8),
-            Gdk.KEY_9: lambda self: setattr(self, "step_size_mp", 9),
-            Gdk.KEY_0: lambda self: setattr(self, "step_size_mp", 10),
-            Gdk.KEY_Return: lambda self: pyscreenshot.grab().save("screenshot.png"),
-            (Gdk.KEY_h, Gdk.KEY_Left): lambda self: (
+            Gdk.KEY_1: lambda self, event: setattr(self, "step_size_mp", 1),
+            Gdk.KEY_2: lambda self, event: setattr(self, "step_size_mp", 2),
+            Gdk.KEY_3: lambda self, event: setattr(self, "step_size_mp", 3),
+            Gdk.KEY_4: lambda self, event: setattr(self, "step_size_mp", 4),
+            Gdk.KEY_5: lambda self, event: setattr(self, "step_size_mp", 5),
+            Gdk.KEY_6: lambda self, event: setattr(self, "step_size_mp", 6),
+            Gdk.KEY_7: lambda self, event: setattr(self, "step_size_mp", 7),
+            Gdk.KEY_8: lambda self, event: setattr(self, "step_size_mp", 8),
+            Gdk.KEY_9: lambda self, event: setattr(self, "step_size_mp", 9),
+            Gdk.KEY_0: lambda self, event: setattr(self, "step_size_mp", 10),
+            Gdk.KEY_Return: lambda self, event: pyscreenshot.grab().save(
+                "screenshot.png"
+            ),
+            (Gdk.KEY_h, Gdk.KEY_Left): lambda self, event: (
                 setattr(
                     self,
                     "cursor_pos",
@@ -63,7 +65,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 self.live_colors(),
                 self.update_lines(),
             ),
-            (Gdk.KEY_l, Gdk.KEY_Right): lambda self: (
+            (Gdk.KEY_l, Gdk.KEY_Right): lambda self, event: (
                 setattr(
                     self,
                     "cursor_pos",
@@ -75,7 +77,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 self.live_colors(),
                 self.update_lines(),
             ),
-            (Gdk.KEY_j, Gdk.KEY_Down): lambda self: (
+            (Gdk.KEY_j, Gdk.KEY_Down): lambda self, event: (
                 setattr(
                     self,
                     "cursor_pos",
@@ -93,7 +95,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 self.live_colors(),
                 self.update_lines(),
             ),
-            (Gdk.KEY_k, Gdk.KEY_Up): lambda self: (
+            (Gdk.KEY_k, Gdk.KEY_Up): lambda self, event: (
                 setattr(
                     self,
                     "cursor_pos",
@@ -105,7 +107,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 self.live_colors(),
                 self.update_lines(),
             ),
-            Gdk.KEY_H: lambda self: (
+            Gdk.KEY_H: lambda self, event: (
                 setattr(
                     self,
                     "stats_pos",
@@ -116,7 +118,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.live_colors(),
             ),
-            Gdk.KEY_L: lambda self: (
+            Gdk.KEY_L: lambda self, event: (
                 setattr(
                     self,
                     "stats_pos",
@@ -127,7 +129,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.live_colors(),
             ),
-            Gdk.KEY_J: lambda self: (
+            Gdk.KEY_J: lambda self, event: (
                 setattr(
                     self,
                     "stats_pos",
@@ -138,7 +140,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.live_colors(),
             ),
-            Gdk.KEY_K: lambda self: (
+            Gdk.KEY_K: lambda self, event: (
                 setattr(
                     self,
                     "stats_pos",
@@ -149,7 +151,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.live_colors(),
             ),
-            Gdk.KEY_t: lambda self: (
+            Gdk.KEY_t: lambda self, event: (
                 setattr(
                     self,
                     "line_thickness",
@@ -157,7 +159,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.update_lines(),
             ),
-            Gdk.KEY_T: lambda self: (
+            Gdk.KEY_T: lambda self, event: (
                 setattr(
                     self,
                     "line_thickness",
@@ -165,35 +167,35 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.update_lines(),
             ),
-            Gdk.KEY_f: lambda self: (
+            Gdk.KEY_f: lambda self, event: (
                 setattr(
                     self,
                     "font_size",
                     self.adjust_value(self.font_size, self.step_size, True, 0),
                 )
             ),
-            Gdk.KEY_F: lambda self: (
+            Gdk.KEY_F: lambda self, event: (
                 setattr(
                     self,
                     "font_size",
                     self.adjust_value(self.font_size, self.step_size, False, 0),
                 )
             ),
-            Gdk.KEY_s: lambda self: (
+            Gdk.KEY_s: lambda self, event: (
                 setattr(
                     self,
                     "stats_font_size",
                     self.adjust_value(self.stats_font_size, self.step_size, True, 0),
                 )
             ),
-            Gdk.KEY_S: lambda self: (
+            Gdk.KEY_S: lambda self, event: (
                 setattr(
                     self,
                     "stats_font_size",
                     self.adjust_value(self.stats_font_size, self.step_size, False, 0),
                 )
             ),
-            Gdk.KEY_o: lambda self: (
+            Gdk.KEY_o: lambda self, event: (
                 setattr(
                     self,
                     "offset",
@@ -203,7 +205,7 @@ class ScreenCaptureWindow(Gtk.Window):
                     ],
                 )
             ),
-            Gdk.KEY_O: lambda self: (
+            Gdk.KEY_O: lambda self, event: (
                 setattr(
                     self,
                     "offset",
@@ -213,7 +215,7 @@ class ScreenCaptureWindow(Gtk.Window):
                     ],
                 )
             ),
-            Gdk.KEY_p: lambda self: (
+            Gdk.KEY_p: lambda self, event: (
                 setattr(
                     self,
                     "offset",
@@ -223,7 +225,7 @@ class ScreenCaptureWindow(Gtk.Window):
                     ],
                 )
             ),
-            Gdk.KEY_P: lambda self: (
+            Gdk.KEY_P: lambda self, event: (
                 setattr(
                     self,
                     "offset",
@@ -233,16 +235,24 @@ class ScreenCaptureWindow(Gtk.Window):
                     ],
                 )
             ),
-            Gdk.KEY_c: lambda self: (
+            (
+                Gdk.KEY_c,
+                Gdk.EventType.BUTTON_PRESS,
+                Gdk.BUTTON_PRIMARY,
+            ): lambda self, event: (
                 setattr(self, "colors", [self.colors[-1]] + self.colors[:-1]),
                 setattr(self, "line_text_color", self.colors[1]),
                 setattr(self, "stats_text_color", self.colors[1]),
                 setattr(self, "line_color", self.colors[0]),
             ),
-            Gdk.KEY_C: lambda self: (
+            (Gdk.EventType.BUTTON_PRESS, Gdk.BUTTON_SECONDARY): lambda self, event: (
+                setattr(self, "stats_pos", [int(event.x), int(event.y)]),
+                self.live_colors(),
+            ),
+            Gdk.KEY_C: lambda self, event: (
                 setattr(self, "is_live_colors", not self.is_live_colors)
             ),
-            Gdk.KEY_r: lambda self: (
+            Gdk.KEY_r: lambda self, event: (
                 setattr(
                     self,
                     "lower_threshold",
@@ -261,7 +271,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.update_lines(),
             ),
-            Gdk.KEY_R: lambda self: (
+            Gdk.KEY_R: lambda self, event: (
                 setattr(
                     self,
                     "lower_threshold",
@@ -280,7 +290,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.update_lines(),
             ),
-            Gdk.KEY_u: lambda self: (
+            Gdk.KEY_u: lambda self, event: (
                 setattr(
                     self,
                     "upper_threshold",
@@ -293,7 +303,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.update_lines(),
             ),
-            Gdk.KEY_U: lambda self: (
+            Gdk.KEY_U: lambda self, event: (
                 setattr(
                     self,
                     "upper_threshold",
@@ -311,7 +321,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 ),
                 self.update_lines(),
             ),
-            Gdk.KEY_n: lambda self: (
+            Gdk.KEY_n: lambda self, event: (
                 setattr(
                     self,
                     "current_arg_index",
@@ -322,7 +332,7 @@ class ScreenCaptureWindow(Gtk.Window):
                 self.prepare_image(sys.argv[self.current_arg_index]),
                 self.update_edges_and_pixbuf(),
             ),
-            Gdk.KEY_N: lambda self: (
+            Gdk.KEY_N: lambda self, event: (
                 setattr(
                     self,
                     "current_arg_index",
@@ -454,22 +464,21 @@ class ScreenCaptureWindow(Gtk.Window):
         self.queue_draw()
 
     def on_button_press(self, widget, event):
-        right_click_pressed = (
-            event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3
-        )
-        left_click_pressed = (
-            event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1
-        )
-        if right_click_pressed:
-            self.stats_pos[0] = int(event.x)
-            self.stats_pos[1] = int(event.y)
-            self.live_colors()
+        action = self.key_actions.get((event.type, event.button))
+        # If no action found for single key value, check for key-value pairs
+        if action is None:
+            for key in self.key_actions.keys():
+                if isinstance(key, tuple) and all(
+                    item in key for item in (event.type, event.button)
+                ):
+                    action = self.key_actions[key]
+                    break
 
-        if left_click_pressed:
-            self.colors = [self.colors[-1]] + self.colors[:-1]
-            self.line_text_color = self.colors[1]
-            self.stats_text_color = self.colors[1]
-            self.line_color = self.colors[0]
+        if action:
+            action(self, event)
+            self.queue_draw()
+            return
+
         self.queue_draw()
 
     def on_scroll(self, widget, event):
@@ -547,7 +556,7 @@ class ScreenCaptureWindow(Gtk.Window):
                     break
 
         if action:
-            action(self)
+            action(self, event)
             self.queue_draw()
             return
 
