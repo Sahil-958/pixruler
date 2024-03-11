@@ -492,16 +492,16 @@ class ScreenCaptureWindow(Gtk.Window):
         if caps_lock_pressed:
             if alt_pressed:
                 self.font_size = self.adjust_value(
-                    self.font_size, self.STEP_SIZE_ONE, is_increase, 0
+                    self.font_size, self.step_size, is_increase, 0
                 )
             elif shift_pressed:
                 self.offset[0] = self.adjust_value(
-                    self.offset[0], self.STEP_SIZE_FOUR, is_increase
+                    self.offset[0], self.step_size, is_increase
                 )
             elif control_pressed:
                 self.lower_threshold = self.adjust_value(
                     self.lower_threshold,
-                    self.STEP_SIZE_ONE,
+                    self.step_size,
                     is_increase,
                     0,
                     self.upper_threshold - 1,
@@ -521,12 +521,12 @@ class ScreenCaptureWindow(Gtk.Window):
                 )
             elif shift_pressed:
                 self.offset[1] = self.adjust_value(
-                    self.offset[1], self.STEP_SIZE_FOUR, is_increase
+                    self.offset[1], self.step_size, is_increase
                 )
             elif control_pressed:
                 self.upper_threshold = self.adjust_value(
                     self.upper_threshold,
-                    self.STEP_SIZE_ONE,
+                    self.step_size,
                     is_increase,
                     self.lower_threshold + 1,
                 )
