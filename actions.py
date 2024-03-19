@@ -308,7 +308,7 @@ key_actions = {
         setattr(
             self,
             "current_arg_index",
-            adjust_value(self.current_arg_index, 1, True, None, self.arg_count - 2),
+            adjust_value(self.current_arg_index, 1, True, None, self.arg_count - 1),
         ),
         prepare_image(self, sys.argv[self.current_arg_index]),
         update_edges_and_pixbuf(self),
