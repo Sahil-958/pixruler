@@ -153,6 +153,12 @@ class ScreenCaptureWindow(Gtk.Window):
         cr.show_text(f"Lower Threshold: {self.lower_threshold}")
         cr.move_to(self.stats_pos[0], self.stats_pos[1] + self.stats_font_size * 16)
         cr.show_text(f"Upper Threshold: {self.upper_threshold}")
+        cr.move_to(self.stats_pos[0], self.stats_pos[1] + self.stats_font_size * 18)
+        cr.show_text(f"Step Size: {self.step_size_mp}")
+        cr.move_to(self.stats_pos[0], self.stats_pos[1] + self.stats_font_size * 20)
+        cr.show_text(f"Step Size with Multiplier: {self.step_size}")
+        cr.move_to(self.stats_pos[0], self.stats_pos[1] + self.stats_font_size * 22)
+        cr.show_text(f"Live Color: {self.is_live_colors}")
 
     def on_motion_notify(self, widget, event):
         self.cursor_pos = [int(event.x), int(event.y)]
