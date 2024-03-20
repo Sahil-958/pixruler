@@ -140,7 +140,6 @@ You can customize the application by modifying the following parameters in the `
 - [ ] Add snap-to-shape feature for detected edges of geometric shapes.
 - [x] Add support for switching between multiple images passed as input.
 - [ ] Refactor the code to improve performance, efficiency, and readability.
-- [ ] Refactor code ASAP before it goes out of hand.
 - [ ] Add github workflows for releases
 
 ## License
