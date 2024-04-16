@@ -20,6 +20,8 @@
 import numpy as np
 import cv2
 import gi
+import os
+import pyscreenshot
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("GdkPixbuf", "2.0")
@@ -110,3 +112,17 @@ def detect_edge_along_line(start, end, edges):
         if edges[y, x] > 0:
             return True, (x, y)  # Return True and the position of the edge
     return False, end  # Return False if no edge is detected
+
+
+def save_screenshot():
+    base_filename = "screenshot.png"
+    count = 0
+    while True:
+        # Check if the file exists
+        if os.path.exists(base_filename):
+            count += 1
+            base_filename = f"screenshot_{count:02}.png"  # Padded count
+        else:
+            # Save the screenshot with the unique filename
+            pyscreenshot.grab().save(base_filename)
+            break

@@ -25,7 +25,6 @@ from utils import *
 import sys
 import cv2
 import gi
-import pyscreenshot
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("GdkPixbuf", "2.0")
@@ -43,7 +42,7 @@ key_actions = {
     Gdk.KEY_8: lambda self, _: setattr(self, "step_size_mp", 8),
     Gdk.KEY_9: lambda self, _: setattr(self, "step_size_mp", 9),
     Gdk.KEY_0: lambda self, _: setattr(self, "step_size_mp", 10),
-    Gdk.KEY_Return: lambda _, __: pyscreenshot.grab().save("screenshot.png"),
+    Gdk.KEY_Return: lambda _, __: save_screenshot(),
     (Gdk.KEY_h, Gdk.KEY_Left): lambda self, _: (
         setattr(
             self,
